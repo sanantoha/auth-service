@@ -3,7 +3,7 @@ use log::{error, info, warn};
 use std::sync::Arc;
 
 pub mod proto {
-    tonic::include_proto!("auth"); // auth is a package in calculator.proto file
+    tonic::include_proto!("auth"); // auth is a package in auth.proto file
 
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("auth_descriptor");
 }
