@@ -4,7 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::error::Error;
 use std::env;
 
-const SECRET_NAME: &str = "AUTH_SECRET";
+pub const SECRET_NAME: &str = "AUTH_SECRET";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -13,7 +13,7 @@ struct Claims {
     exp: usize, // Expiration time (as UTC timestamp)
 }
 
-pub fn generate_jwt(valid_seconds: usize) -> Result<String, Error> {
+pub fn generate_jwt(valid_seconds: usize, secret: &str) -> Result<String, Error> {
     let expiration = SystemTime::now()
         .duration_since(UNIX_EPOCH)?
         .as_secs() as usize + valid_seconds;
@@ -23,9 +23,6 @@ pub fn generate_jwt(valid_seconds: usize) -> Result<String, Error> {
         company: "My Company".to_string(),
         exp: expiration,
     };
-
-    let secret = env::var(SECRET_NAME)
-        .map_err(|e| Error::Var { input: SECRET_NAME, source: e })?;
 
     let token = encode(
         &Header::default(),

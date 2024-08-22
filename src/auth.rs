@@ -14,13 +14,15 @@ const VALID_SECONDS: usize = 3600; // 1h
 
 #[derive(Debug)]
 pub struct AuthService {
-    user_repository: Arc<UserRepository>
+    user_repository: Arc<UserRepository>,
+    secret: String
 }
 
 impl AuthService {
-    pub fn new(repository: Arc<UserRepository>) -> Self {
+    pub fn new(repository: Arc<UserRepository>, secret: String) -> Self {
         AuthService {
-            user_repository: repository
+            user_repository: repository,
+            secret
         }
     }
 }
@@ -44,7 +46,7 @@ impl Auth for AuthService {
             return Err(tonic::Status::not_found(msg));
         }
 
-        let token = generate_jwt(VALID_SECONDS)
+        let token = generate_jwt(VALID_SECONDS, &self.secret)
             .map_err(|e| {
                 error!("Error generate_jwt {}", e);
                 tonic::Status::internal("internal server error")
@@ -53,6 +55,25 @@ impl Auth for AuthService {
 
         let response = proto::LoginResponse { token };
 
-        return Ok(tonic::Response::new(response));                
+        return Ok(tonic::Response::new(response));
+    }
+
+    async fn register(&self, request: tonic::Request<proto::RegisterRequest>) -> Result<tonic::Response<proto::RegisterResponse>, tonic::Status> {
+        let req = request.get_ref();
+        info!("received user register request email: {}", req.email);
+
+        let user_id = self.user_repository.register_user(&req.email, &req.password).await
+            .map_err(|e| {
+                error!("Error executing user_repository.register_user function: {}", e);
+                tonic::Status::internal("internal server error")        
+        })?;
+
+        let response = proto::RegisterResponse { user_id };
+
+        return Ok(tonic::Response::new(response));
+    }
+
+    async fn is_admin(&self, request: tonic::Request<proto::IsAdminRequest>) -> Result<tonic::Response<proto::IsAdminRespons>, tonic::Status> {
+        todo!()
     }
 }

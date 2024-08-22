@@ -18,6 +18,9 @@ pub enum Error {
     #[error(transparent)]
     MongoQuery(#[from] mongodb::error::Error),
 
+    #[error("Can not extract key for user {0}")]
+    MongoKey(String),
+
     #[error(transparent)]
     AddParse(#[from] std::net::AddrParseError),
 

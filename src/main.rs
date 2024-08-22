@@ -21,11 +21,14 @@ async fn main() -> Result<(), Error> {
     let port = env::var(AUTH_SERVICE_PORT_NAME)
         .map_err(|e| Error::Var { input: AUTH_SERVICE_PORT_NAME, source: e })?;
 
+    let secret = env::var(jwt::SECRET_NAME)
+        .map_err(|e| Error::Var { input: jwt::SECRET_NAME, source: e })?;
+
     let addr = format!("[::1]:{}", port).parse()?;
 
     let client = Client::with_uri_str("mongodb://localhost:27017").await?;
     let user_repository = UserRepository::new(Arc::new(client));
-    let auth_service = auth::AuthService::new(Arc::new(user_repository));
+    let auth_service = auth::AuthService::new(Arc::new(user_repository), secret);
 
 
 
