@@ -1,6 +1,8 @@
+use mongodb::bson::document::ValueAccessError;
 use proto::auth_server::Auth;
 use log::{error, info, warn};
 use std::sync::Arc;
+use crate::error::Error;
 
 pub mod proto {
     tonic::include_proto!("auth"); // auth is a package in auth.proto file
@@ -74,6 +76,27 @@ impl Auth for AuthService {
     }
 
     async fn is_admin(&self, request: tonic::Request<proto::IsAdminRequest>) -> Result<tonic::Response<proto::IsAdminRespons>, tonic::Status> {
-        todo!()
+        let req = request.get_ref();
+        info!("received user register request user_id: {}", req.user_id);
+
+        let is_admin = self.user_repository.is_admin(&req.user_id).await
+                .map_err(|e| {
+                    match e {
+                        Error::UserNotFound(_) => 
+                            tonic::Status::not_found("user not found"),
+                        Error::MongoUserId(_) => 
+                            tonic::Status::invalid_argument(format!("user_id={} is invalid", req.user_id)),
+                        Error::MongoValueAccess(ValueAccessError::NotPresent) => 
+                            tonic::Status::invalid_argument(format!("user_id={} does not have is_admin property", req.user_id)),
+                        Error::MongoValueAccess(_) => 
+                            tonic::Status::internal("internal server error"),
+                        _ => 
+                            tonic::Status::internal("internal server error"),
+                    }
+                })?;
+        
+        let resposne = proto::IsAdminRespons { is_admin };
+
+        return Ok(tonic::Response::new(resposne));
     }
 }

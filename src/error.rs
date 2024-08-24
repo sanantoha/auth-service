@@ -22,10 +22,16 @@ pub enum Error {
     MongoKey(String),
 
     #[error(transparent)]
-    AddParse(#[from] std::net::AddrParseError),
+    MongoValueAccess(#[from] mongodb::bson::document::ValueAccessError),
 
-    // #[error(transparent)]
-    // Var(#[from] std::error::Va),
+    #[error(transparent)]
+    MongoUserId(#[from] mongodb::bson::oid::Error),
+
+    #[error("User user_id={0} not found in database")]
+    UserNotFound(String),
+
+    #[error(transparent)]
+    AddParse(#[from] std::net::AddrParseError),
 
     #[error("Can not parse variable: {input}")]
     Var {

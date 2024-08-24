@@ -1,4 +1,4 @@
-use mongodb::{Client, bson::doc, Collection, bson::Bson};
+use mongodb::{Client, bson::doc, Collection, bson::Bson, bson::oid::ObjectId};
 use mongodb::bson::Document;
 use crate::error::Error;
 use std::sync::Arc;
@@ -30,5 +30,21 @@ impl UserRepository {
             Bson::ObjectId(oid) => Ok(oid.to_hex()),
             _ => Err(Error::MongoKey(email.to_owned())),
         }        
+    }
+
+    pub async fn is_admin(&self, user_id: &str) -> Result<bool, Error> {
+        let object_id_str = ObjectId::parse_str(user_id)?;
+        let filter = doc! {"_id":  object_id_str };
+
+        let document = self.collection.find_one(filter).await?;
+
+        
+
+        if let Some(user_doc) = document {
+            let is_admin = user_doc.get_bool("is_admin")?;
+            Ok(is_admin)
+        } else {
+            Err(Error::UserNotFound(user_id.to_owned()))
+        }
     }
 }

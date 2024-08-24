@@ -1,11 +1,11 @@
 use serde::{Serialize, Deserialize};
-use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey, TokenData};
+use jsonwebtoken::{encode, Header, EncodingKey};
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::error::Error;
-use std::env;
 
 pub const SECRET_NAME: &str = "AUTH_SECRET";
 
+#[warn(private_interfaces)]
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
     sub: String,
@@ -32,16 +32,16 @@ pub fn generate_jwt(valid_seconds: usize, secret: &str) -> Result<String, Error>
 
     Ok(token)
 }
+// not sure if it needed.
+// pub fn validate_jwt(token: &str) -> Result<TokenData<Claims>, Error> {    
+//     let secret = env::var(SECRET_NAME)
+//         .map_err(|e| Error::Var { input: SECRET_NAME, source: e })?;
 
-pub fn validate_jwt(token: &str) -> Result<TokenData<Claims>, Error> {    
-    let secret = env::var(SECRET_NAME)
-        .map_err(|e| Error::Var { input: SECRET_NAME, source: e })?;
+//     let token_data = decode::<Claims>(
+//         token,
+//         &DecodingKey::from_secret(secret.as_ref()),
+//         &Validation::default(),
+//     )?;
 
-    let token_data = decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(secret.as_ref()),
-        &Validation::default(),
-    )?;
-
-    Ok(token_data)
-}
+//     Ok(token_data)
+// }
