@@ -39,7 +39,6 @@ impl UserRepository {
         let document = self.collection.find_one(filter).await?;
 
         
-
         if let Some(user_doc) = document {
             let is_admin = user_doc.get_bool("is_admin")?;
             Ok(is_admin)

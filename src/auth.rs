@@ -82,16 +82,26 @@ impl Auth for AuthService {
         let is_admin = self.user_repository.is_admin(&req.user_id).await
                 .map_err(|e| {
                     match e {
-                        Error::UserNotFound(_) => 
-                            tonic::Status::not_found("user not found"),
-                        Error::MongoUserId(_) => 
-                            tonic::Status::invalid_argument(format!("user_id={} is invalid", req.user_id)),
-                        Error::MongoValueAccess(ValueAccessError::NotPresent) => 
-                            tonic::Status::invalid_argument(format!("user_id={} does not have is_admin property", req.user_id)),
-                        Error::MongoValueAccess(_) => 
-                            tonic::Status::internal("internal server error"),
-                        _ => 
-                            tonic::Status::internal("internal server error"),
+                        Error::UserNotFound(_) => {
+                            warn!("user user_id={} not found in user database", req.user_id);
+                            tonic::Status::not_found("user not found")
+                        },
+                        Error::MongoUserId(_) => {
+                            warn!("user_id={} is invalid", req.user_id);
+                            tonic::Status::invalid_argument(format!("user_id={} is invalid", req.user_id))
+                        },
+                        Error::MongoValueAccess(ValueAccessError::NotPresent) => {
+                            warn!("user_id={} does not have is_admin property", req.user_id);
+                            tonic::Status::invalid_argument(format!("user_id={} does not have is_admin property", req.user_id))
+                        },
+                        Error::MongoValueAccess(ValueAccessError::UnexpectedType) => {
+                            warn!("is_admin has wrong type for user_id={}", req.user_id);
+                            tonic::Status::internal("internal server error")
+                        },                             
+                        _ => {
+                            error!("undefined error for requet IsAdminRequest with user_id={}", req.user_id);
+                            tonic::Status::internal("internal server error")
+                        }                            
                     }
                 })?;
         
