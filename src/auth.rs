@@ -77,7 +77,7 @@ impl Auth for AuthService {
 
     async fn is_admin(&self, request: tonic::Request<proto::IsAdminRequest>) -> Result<tonic::Response<proto::IsAdminRespons>, tonic::Status> {
         let req = request.get_ref();
-        info!("received user register request user_id: {}", req.user_id);
+        info!("received user is_admin request user_id: {}", req.user_id);
 
         let is_admin = self.user_repository.is_admin(&req.user_id).await
                 .map_err(|e| {
