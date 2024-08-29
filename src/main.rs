@@ -15,7 +15,7 @@ const AUTH_SERVICE_PORT_NAME: &str = "AUTH_PORT";
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    std::env::set_var("RUST_LOG", "info");
+    std::env::set_var("RUST_LOG", std::env::var("RUST_LOG").unwrap_or("info".to_owned()));
     std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
