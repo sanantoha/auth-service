@@ -39,4 +39,7 @@ pub enum Error {
         #[source] 
         source: std::env::VarError,
     },
+
+    #[error("Password hash error: {0}")]
+    PasswordHash(String),
 }

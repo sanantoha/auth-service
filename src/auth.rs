@@ -10,7 +10,7 @@ pub mod proto {
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("auth_descriptor");
 }
 
-use crate::{jwt::generate_jwt, repository::UserRepository};
+use crate::{jwt::generate_jwt, user_repository::UserRepository};
 const VALID_SECONDS: usize = 3600; // 1h
 
 

@@ -1,5 +1,5 @@
 use crate::auth::proto::auth_server::AuthServer;
-use repository::UserRepository;
+use user_repository::UserRepository;
 use tonic::transport::Server;
 use crate::error::Error;
 use mongodb::Client;
@@ -9,7 +9,8 @@ use std::env;
 mod auth;
 mod jwt;
 mod error;
-mod repository;
+mod user_repository;
+mod hash_pwd;
 
 const AUTH_SERVICE_PORT_NAME: &str = "AUTH_PORT";
 
