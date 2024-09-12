@@ -3,7 +3,6 @@ use user_repository::UserRepository;
 use tonic::transport::Server;
 use crate::error::Error;
 use mongodb::Client;
-use std::sync::Arc;
 use std::env;
 
 mod auth;
@@ -29,8 +28,8 @@ async fn main() -> Result<(), Error> {
     let addr = format!("[::1]:{}", port).parse()?;
 
     let client = Client::with_uri_str("mongodb://localhost:27017").await?;
-    let user_repository = UserRepository::new(Arc::new(client));
-    let auth_service = auth::AuthService::new(Arc::new(user_repository), secret);
+    let user_repository = UserRepository::new(client);
+    let auth_service = auth::AuthService::new(user_repository, secret);
 
 
 

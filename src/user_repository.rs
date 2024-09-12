@@ -1,7 +1,6 @@
 use mongodb::{Client, bson::doc, Collection, bson::Bson, bson::oid::ObjectId};
 use mongodb::bson::Document;
 use crate::error::Error;
-use std::sync::Arc;
 use crate::hash_pwd::{hash_password, verify_password};
 
 #[derive(Debug)]
@@ -10,7 +9,7 @@ pub struct UserRepository {
 }
 
 impl UserRepository {
-    pub fn new(client: Arc<Client>) -> Self {
+    pub fn new(client: Client) -> Self {
         let database = client.database("userinfo");
         let collection = database.collection::<Document>("users");
 

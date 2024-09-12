@@ -1,7 +1,6 @@
 use mongodb::bson::document::ValueAccessError;
 use proto::auth_server::Auth;
 use log::{error, info, warn};
-use std::sync::Arc;
 use crate::error::Error;
 
 pub mod proto {
@@ -16,12 +15,12 @@ const VALID_SECONDS: usize = 3600; // 1h
 
 #[derive(Debug)]
 pub struct AuthService {
-    user_repository: Arc<UserRepository>,
+    user_repository: UserRepository,
     secret: String
 }
 
 impl AuthService {
-    pub fn new(repository: Arc<UserRepository>, secret: String) -> Self {
+    pub fn new(repository: UserRepository, secret: String) -> Self {
         AuthService {
             user_repository: repository,
             secret
